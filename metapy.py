@@ -13,14 +13,44 @@ from PIL import Image
 from PIL.ExifTags import TAGS
 
 """
- Log Setup
- Every sdtout will be verted into the logfile (metapy.log),
+ Log Setup:
+
+ 1. USER log
+ Every informational output will be verted into the metapy.log file,
  located on the same folder where the program is run.
+
+ 2. DEV log
+ Every debugging-level output will be verted into the debug-metapy.log file,
+ located on the same folder where the program is run.
+
  """
 
-logging.basicConfig(level=logging.INFO, filename='.\metapy.log', format='%(asctime)s %(levelname)s - %(message)s')
+# Creating loggers
+logger1 = logging.getLogger('user_log')
+logger2 = logging.getLogger('dev_log')
+logger1.setLevel(logging.DEBUG)
+logger2.setLevel(logging.DEBUG)
+
+# Preparing log format
+formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+
+# Setting INFO / USER log handler to lower level
+handler1 = logging.FileHandler('.\\metapy.log')
+stream_handler1 = logging.StreamHandler()
+stream_handler1.setLevel(level=logging.INFO)
+stream_handler1.setFormatter(formatter)
+logger1.addHandler(handler1)
+
+# Setting DEBUG / DEV log handler to only debug
+handler2 = logging.FileHandler('.\\debug-metapy.log')
+stream_handler2 = logging.StreamHandler()
+stream_handler2.setLevel(level=logging.DEBUG)
+stream_handler2.setFormatter(formatter)
+logger2.addHandler(handler2)
 
 # Image opening and tags listing
+
+
 class OpenImage:
     def __init__(self, path):
         self.image = Image.open(path)
@@ -33,7 +63,6 @@ class OpenImage:
         items = exit.items()
 
         # Checking exif data stored as Tags
-
         if exit:
             print("Has metadata:")
             try:
@@ -44,25 +73,29 @@ class OpenImage:
                     if key in TAGS
                 }
             except AttributeError:
-                pass
-            # Raise InvalidExifData
+                logger2.error('Error found on attributes')
+            finally:
+                logger2.debug(exit)
 
+            # Raise InvalidExifData
             exif_data['format'] = img.format
             print(exif_data)
-            logging.info(exif_data)
-
+            logger1.info("Meta data: %s", exif_data)
         else:
             # Printing only image info
-            print('Sorry, image has no exif data...')
-            print('Stored data: Mode - ', img.mode, ' Size - ', img.size)
-            logging('Stored data: Mode - ', img.mode, ' Size - ', img.size)
+            no_exif = ("Sorry, image has no exif data...",
+                'Stored data: Mode - ', img.mode, ' Size - ', img.size)
+            print(no_exif)
+            logger1.info(no_exif)
+            logger2.info(no_exif)
 
 
 # MetaPy
 
 def meta_py(route):
-    # Printing route 
+    # Printing route
     print(route)
+    logger1.info("Exec for %s", route)
     try:
         # print("The file is a valid image")
         f1 = OpenImage(route)
@@ -71,7 +104,8 @@ def meta_py(route):
     except IOError:
         # File is not a recognizable image
         print("The file is not a recognizable image...")
-        logging.error("The file is not a recognizable image...")
+        logger1.error("The file is not a recognizable image...")
+        logger2.error("The file is not a recognizable image...")
 
     # else:
     # print("The file does not exists. Please, check that the " \
