@@ -3,15 +3,8 @@
 METAPY
 
 CLI python application for image metadata collection and optional deletion
- with two log levels (info and debug) verted into two different files.
+with two log levels (info and debug) verted into two different files.
 Not valid for images contained on byte streams.
-
-Needed libraries:
-
-- Sys
-- Logging
-- PIL (Pillow, needed of download)
-
 
 Library importation
 """
@@ -67,9 +60,7 @@ OpenImage class for image-related functions.
 image_read() -> Image opening and metadata collection on tags,
     listed as key-value
 
-image_copy() -> Preselected image copy on 'origin' folder
-
-image_del() -> Preselected image metadata deletion after copy
+image_copy_del() -> Copy of preselected image without metadata on new 'no_meta' folder
 
 """
 
@@ -80,6 +71,7 @@ class OpenImage:
         self.exifdata = (self.image.getexif())
 
     def image_read(self):
+        # Image-reading function
         exit = self.exifdata
         img = self.image
         items = exit.items()
@@ -94,38 +86,109 @@ class OpenImage:
                     if key in TAGS
                 }
             except AttributeError:
+                # Rise error for attributes reading through dev log
                 logger2.error('Error found on attributes')
             finally:
+                # Provide raw data on debug level through dev log
                 logger2.debug("Raw metada: %s", exit)
-            # Raise InvalidExifData
+            # Preset format of exif_data into previous tags
             exif_data['format'] = img.format
-            print("Meta data: ", exif_data,"\n")
+            exif_data['Mode'] = img.mode
+            exif_data['Size'] = img.size
+            # Provide data on info level through terminal + user + dev logs
+            print("Meta data: ", exif_data)
             logger1.info("Meta data: %s", exif_data)
-            logger1.info("")
             logger2.info("Meta data: %s", exif_data)
-            logger2.info("")
         else:
-            # Printing only image info
+            # If image has not exif data, we provide basics mode and size of image
             no_exif = ("Sorry, image has no exif data... Stored data: Mode - ", img.mode, ' Size - ', img.size)
-            print(no_exif,"\n")
+            print(no_exif)
             logger1.info(no_exif)
-            logger1.info("")
             logger2.debug(no_exif)
+
+    def image_copy_del(self, filename, destination):
+        # Image-copy of deleted-metadata image version
+        # destination is given as arg
+        img = self.image
+
+        if self.exifdata:
+            try:
+                if (img.mode != 'RGB'):
+                    # If image is not on RGB mode, we convert it
+                    img = img.convert('RGB')
+                data = list(img.getdata())
+
+                # Setting new image data
+                image_without_exif = Image.new(img.mode, img.size)
+                image_without_exif.putdata(data)
+
+                # Setting new image name + route
+                new_file = destination + "\\" + filename
+
+                # Saving image on new location
+                image_without_exif.save(new_file)
+                print("New image without metadata created: ", new_file, "\n")
+                logger1.info("New image without metadata created %s", new_file)
+                logger2.info("New image without metadata created %s", new_file)
+                logger1.info("")
+                logger2.info("")
+            except OSError:
+                # Leaving proof of error on logs
+                logger1.info("Copy not created. See debug log for more info")
+                logger1.info("")
+                logger2.error("Error on creating copy without metadata")
+                logger2.info("")
+        else:
+            print("As image has no metadata, no copy is created\n")
+            logger1.info("As image has no metadata, no copy is created")
+            logger1.info("")
+            logger2.info("As image has no metadata, no copy is created")
             logger2.info("")
+
+
+def new_directory(path, option):
+    # Function to create new directory
+    # option is defined either as file or directory
+
+    if (option == 'file'):
+        # When the option is file
+        file_len = len(path.rsplit("\\")[1])
+        root_directory_len = (len(path) - file_len - 2)
+        root_directory = (path[0:root_directory_len])
+        # Setting destination directory
+        directory = root_directory + 'without_meta'
+    elif(option == 'directory'):
+        # When option is file
+        # Setting destination directory directly
+        directory = path + '\\without_meta'
+
+    if not os.path.exists(directory):
+        # If destination directoy does not exists
+        # we create it + leave proof on logs
+        os.makedirs(directory)
+        logger1.info("Destination directory created: %s", directory)
+        logger2.info("Destination directory created: %s", directory)
+    else:
+        # If it exists, we leave proof on logs
+        logger1.info("Destination directory already existed: %s", directory)
+        logger2.info("Destination directory already existed: %s", directory)
+
+    # We return such destination route for further use
+    return directory
 
 
 # MetaPy
 
-def meta_py(route):
-    # Printing route on log
+def meta_py(route, filename, destination):
+    # Printing route executing on log
     print("Executing for ", route)
     logger1.info("Executing for %s", route)
     logger2.info("Executing for %s", route)
     try:
-        # print("The file is a valid image")
+        # Opening new image-object
         f1 = OpenImage(route)
         f1.image_read()
-        # img_del(img)
+        f1.image_copy_del(filename, destination)
     except IOError:
         # File is not a recognizable image
         print(route, " is not a recognizable image... \n")
@@ -143,13 +206,17 @@ def main(route):
         # If arg is a file, it will single-execute
         print(route, "is a file and exists")
         logger1.info("%s is a file and exists", route)
-        meta_py(route)
+        destination = new_directory(route, 'file')
+        filename = (route.rsplit("\\")[-1])
+        meta_py(route, filename, destination)
     elif(os.path.exists(route)):
         # If arg is a directory, each file is extracted
+        destination = new_directory(route, 'directory')
         my_files = [f for f in listdir(route) if isfile(join(route, f))]
         for file in my_files:
+            filename = file
             file = route + "\\" + file
-            meta_py(file)
+            meta_py(file, filename, destination)
     else:
         print(route, "is not a valid route or file \n")
         logger1.error("%s is not a valid route or file", route)
@@ -158,13 +225,5 @@ def main(route):
         logger2.info("")
 
 
-# meta_py('C:\\Users\\CM\\source\\repos\\MetaPy\\MetaPy\\sources\\dos.jpg')
-
-# negativo
-main('C:\\Users\\CM\\source\\repos\\MetaPy\\MetaPy\\sourcess')
-
-# positivo full _fichero_
-# main('C:\\Users\\CM\\source\\repos\\MetaPy\\MetaPy\\sources\\dos.jpg')
-
-# positivo directorio
-main('C:\\Users\\CM\\source\\repos\\MetaPy\\MetaPy\\sources')
+# Executing script with argument as route
+main(sys.argv[1])

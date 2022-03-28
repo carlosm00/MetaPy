@@ -6,9 +6,8 @@ Run on Windows and Unix-based OS.
 * Pillow (PIL)
 
 # How to use
-Run through terminal, as it will ask for the (absolute or relative) rute file. Make sure the backlashes are doubled '\\'
-('$python metapy.py
-$ Please, provide the rute file: ')
+Run through terminal providing absolute rute file or source.
+('$python metapy.py C:\example\folder')
 
 # Extra notes
 ## imghdr for image validator
