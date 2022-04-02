@@ -14,10 +14,15 @@ Run on Windows and Unix-based OS.
 
 # How to use
 ## Clone repository
-('$git clone https://github.com/carlosm00/MetaPy.git')
+	```shell
+	git clone https://github.com/carlosm00/MetaPy.git
+	```
+
 ## Run CLI application
 Run through terminal providing absolute rute file or source.
-('$python metapy.py C:\example\folder')
+	```shell
+	python metapy.py C:\example\folder
+	```
 
 # Tests and 'Source' folder
 For testing purposes we created a 'Source' folder containing the following files:
