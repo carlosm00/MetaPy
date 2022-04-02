@@ -20,7 +20,8 @@ Run on Windows and Unix-based OS.
 
 ## Run CLI application
 Run through terminal providing absolute rute file or source.
-	```shell
+
+	```console
 	python metapy.py C:\example\folder
 	```
 
