@@ -40,18 +40,21 @@ For testing purposes we created a 'Source' folder containing the following files
 # Extra notes
 ## Why Pillow?
 Pillow as the successor of PIL offers faster data-accessing methods and powerful optimized processing capabilities, with a continued contribution as a live project.
-Reference: 
+Reference:
+
 	- https://python-pillow.org/
 	- https://pillow.readthedocs.io/en/stable/index.html
 	- https://github.com/python-pillow/Pillow
 
 ## Logging
 For logging capabilities we use the built-in 'Logging' facility.
-Reference and documentation: 
+Reference and documentation:
+
 	- https://docs.python.org/3/library/logging.html
 
 ## imghdr for image validator
 imghdr builtin module is not used as it gets deprecated on 3.11. Opening the window for future versions.
-Reference: 
+Reference:
+
 	- https://docs.python.org/3/library/imghdr.html
 	- https://peps.python.org/pep-0594/
