@@ -103,8 +103,8 @@ class OpenImage:
         else:
             # If image has not exif data,
             # we provide basics mode and size of image
-            no_exif = ("Sorry, image has no exif data... Stored data: \
-            Mode - ", img.mode, ' Size - ', img.size)
+            no_exif = ('Sorry, image has no exif data... Stored data: \
+Mode - ' + img.mode + ' Size - ', img.size)
             print(no_exif)
             logger1.info(no_exif)
             logger2.debug(no_exif)
@@ -191,7 +191,22 @@ def meta_py(route, filename, destination):
         # Opening new image-object
         f1 = OpenImage(route)
         f1.image_read()
-        f1.image_copy_del(filename, destination)
+        # Checking ask option from arg
+        if (ask is True):
+            logger2.debug("No force argument used")
+            # No force arg, we ask if user wishes
+            # to create a copy without metadata
+            if (input("\nDo you wish to create a \
+            copy without metadata?\n") == 'yes'):
+                logger2.debug("User decided to create a copy without metadata")
+                f1.image_copy_del(filename, destination)
+            else:
+                logger2.debug("User decided NOT to \
+create a copy without metadata")
+                print("\nYou chose not to create a copy without metadata")
+        else:
+            logger2.debug("Force argument used without being asked")
+            f1.image_copy_del(filename, destination)
     except IOError:
         # File is not a recognizable image
         print(route, " is not a recognizable image... \n")
@@ -219,7 +234,7 @@ def main(route):
         for file in my_files:
             filename = file
             file = route + "\\" + file
-            meta_py(file, filename, destination)
+            meta_py(file, filename, destination, ask)
     else:
         print(route, "is not a valid route or file \n")
         logger1.error("%s is not a valid route or file", route)
@@ -229,4 +244,16 @@ def main(route):
 
 
 # Executing script with argument as route
-main(sys.argv[1])
+if (len(sys.argv) == 3) and (sys.argv[2] == '-f'):
+    # If second argument is '-f', we force duplication
+    ask = False
+    logger2.debug("Control passed")
+    main(sys.argv[1])
+elif (len(sys.argv) == 2):
+    # If not, we ask on each
+    ask = True
+    logger2.debug("Control passed")
+    main(sys.argv[1])
+else:
+    print("Script was not correctly used. Please, read the README.md")
+    logger2.debug("Script not correctly used...")
