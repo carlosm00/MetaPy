@@ -61,7 +61,7 @@ image_read() -> Image opening and metadata collection on tags,
     listed as key-value
 
 image_copy_del() -> Copy of preselected image
-without metadata on new 'no_meta' folder
+    without metadata on new 'no_meta' folder
 
 """
 
@@ -155,11 +155,11 @@ def new_directory(path, option):
 
     if (option == 'file'):
         # When the option is file
-        file_len = len(path.rsplit("\\")[1])
-        root_directory_len = (len(path) - file_len - 2)
+        file_len = len(path.rsplit("\\")[-1])
+        root_directory_len = (len(path) - file_len - 1)
         root_directory = (path[0:root_directory_len])
         # Setting destination directory
-        directory = root_directory + 'without_meta'
+        directory = root_directory + '\\' + 'without_meta'
     elif(option == 'directory'):
         # When option is file
         # Setting destination directory directly
@@ -197,13 +197,13 @@ def meta_py(route, filename, destination):
             # No force arg, we ask if user wishes
             # to create a copy without metadata
             if (input("\nDo you wish to create a \
-            copy without metadata?\n") == 'yes'):
+copy without metadata?\n") == 'yes'):
                 logger2.debug("User decided to create a copy without metadata")
                 f1.image_copy_del(filename, destination)
             else:
                 logger2.debug("User decided NOT to \
 create a copy without metadata")
-                print("\nYou chose not to create a copy without metadata")
+                print("\nYou chose not to create a copy without metadata\n")
         else:
             logger2.debug("Force argument used without being asked")
             f1.image_copy_del(filename, destination)
@@ -234,7 +234,7 @@ def main(route):
         for file in my_files:
             filename = file
             file = route + "\\" + file
-            meta_py(file, filename, destination, ask)
+            meta_py(file, filename, destination)
     else:
         print(route, "is not a valid route or file \n")
         logger1.error("%s is not a valid route or file", route)
