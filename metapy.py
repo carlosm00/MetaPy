@@ -60,7 +60,8 @@ OpenImage class for image-related functions.
 image_read() -> Image opening and metadata collection on tags,
     listed as key-value
 
-image_copy_del() -> Copy of preselected image without metadata on new 'no_meta' folder
+image_copy_del() -> Copy of preselected image
+without metadata on new 'no_meta' folder
 
 """
 
@@ -100,8 +101,10 @@ class OpenImage:
             logger1.info("Meta data: %s", exif_data)
             logger2.info("Meta data: %s", exif_data)
         else:
-            # If image has not exif data, we provide basics mode and size of image
-            no_exif = ("Sorry, image has no exif data... Stored data: Mode - ", img.mode, ' Size - ', img.size)
+            # If image has not exif data,
+            # we provide basics mode and size of image
+            no_exif = ("Sorry, image has no exif data... Stored data: \
+            Mode - ", img.mode, ' Size - ', img.size)
             print(no_exif)
             logger1.info(no_exif)
             logger2.debug(no_exif)
