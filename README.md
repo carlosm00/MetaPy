@@ -32,6 +32,7 @@ There is a way to force the copy without being asked by using the '-f' after the
 python metapy.py C:\example\folder -f
 ```
 
+Please, note that more than three (3) arguments will be considered a wrong use of the script.
 
 # Tests and 'Source' folder
 For testing purposes we created a 'Source' folder containing the following files:
