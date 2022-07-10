@@ -1,12 +1,11 @@
 """
-
-METAPY
-
-CLI python application for image metadata collection and optional deletion
-with two log levels (info and debug) verted into two different files.
-Not valid for images contained on byte streams.
-
-Library importation
+    Title: metaPy
+    Author: Carlos Mena
+    Version: 1.0
+    Description: CLI python application for image metadata collection and optional deletion
+    with two log levels (info and debug) verted into two different files.
+    Not valid for images contained on byte streams.
+    
 """
 import sys
 import logging
