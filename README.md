@@ -2,15 +2,15 @@
 Simple pythonic CLI application for image metadata collection and (optionally) delete it.
 Run on Windows and Unix-based OS.
 
-# Required libreries
+# Required libraries
 - Pillow (PIL fork)
 
 # Features
 - Open Source
-- Python-based full CLI application
+- Python-based, full CLI application
 - Logging on:
 	- User level (info)
-	- Developper level (debug, error)
+	- Developer level (debug, error)
 - Force option
 
 # How to use
@@ -21,7 +21,7 @@ git clone https://github.com/carlosm00/MetaPy.git
 
 
 ## Run CLI application
-Run through terminal providing absolute rute file or source.
+Run through terminal providing absolute route file or source.
 ```
 python metapy.py C:\example\folder
 ```
@@ -35,11 +35,11 @@ python metapy.py C:\example\folder -f
 Please, note that more than three (3) arguments will be considered a wrong use of the script.
 
 # Tests and 'Source' folder
-For testing purposes we created a 'Source' folder containing the following files:
+For testing purposes, we created a 'Source' folder containing the following files:
 
-| File		       | Type   | Decription                   | Test result                                           |
+| File		       | Type   | Description                   | Test result                                           |
 | :--------------- | :----- | :--------------------------- | :---------------------------------------------------- |
-| full_negative    | `png`  | Corrupted file               | Error: Invlid file                                    |
+| full_negative    | `png`  | Corrupted file               | Error: Invalid file                                    |
 | positive_no_meta | `jpg`  | Plain image without metadata | Only size and mode                                    |
 | full_positive    | `jpg`  | Phone-taken camera           | Full metadata output and duplication without metadata |
 
@@ -56,13 +56,13 @@ Reference:
 	- https://github.com/python-pillow/Pillow
 
 ## Logging
-For logging capabilities we use the built-in 'Logging' facility.
+For logging capabilities, we use the built-in 'Logging' facility.
 Reference and documentation:
 
 	- https://docs.python.org/3/library/logging.html
 
 ## imghdr for image validator
-imghdr builtin module is not used as it gets deprecated on 3.11. Opening the window for future versions.
+The imghdr builtin module is not used as it gets deprecated on 3.11. Opening the window for future versions.
 Reference:
 
 	- https://docs.python.org/3/library/imghdr.html
