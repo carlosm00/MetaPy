@@ -67,3 +67,14 @@ Reference:
 
 	- https://docs.python.org/3/library/imghdr.html
 	- https://peps.python.org/pep-0594/
+
+<!-- Contributing -->
+
+## Contributing
+Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/your_feature`)
+3. Commit your Changes (`git commit -m 'Added x feature'`)
+4. Push to the Branch (`git push origin feature/your_feature`)
+5. Open a Pull Request
