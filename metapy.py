@@ -33,7 +33,7 @@ logger.setLevel(logging.DEBUG)
 # Setting INFO / USER log handler to lower level
 handler = logging.FileHandler('.\\metapy.log')
 stream_handler = logging.StreamHandler()
-stream_handler.setLevel(level=logging.INFO)
+stream_handler.setLevel(level=logging.DEBUG)
 # stream_handler.setFormatter(formatter)
 logger.addHandler(handler)
 
