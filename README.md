@@ -1,50 +1,50 @@
 # MetaPy
-Simple pythonic CLI application for image metadata collection and (optionally) delete it.
-Run on Windows and Unix-based OS.
+Simple pythonic service for image metadata deletion. 
+This solution includes Dockerfile to build the image for the solution.
 
 # Required libraries
 - Pillow (PIL fork)
+- Flask
 
 # Features
 - Open Source
-- Python-based, full CLI application
-- Logging on:
-	- User level (info)
-	- Developer level (debug, error)
-- Force option
+- Python-based
+- Dockerized
 
 # How to use
-## Clone repository	
+## Setup
+Setting up the service is as simple and clonning the repo, building the image and running the service, exposing port 5000:
 ```
 git clone https://github.com/carlosm00/MetaPy.git
+cd MetaPy
+docker build -t metapy .
+docker run -d -p 5000:5000 metapy
 ```
-
-
-## Run CLI application
-Run through terminal providing absolute route file or source.
+## Call to service
+For using the service, we simply need to call to '/remove-metadata' method providing the file path and output:
 ```
-python metapy.py C:\example\folder
+~/MetaPy/sources$ curl -X POST http://localhost:5000/remove-metadata -F "file=@positive_no_meta.jpg" -o output_image.jpg
 ```
-
-After reading the metadata of the file, you will be asked if you wish to create a copy of the image without metadata. The script will only accept a 'yes' (lowercase), otherwise, it ill consider you don't want the copy.
-There is a way to force the copy without being asked by using the '-f' after the path:
-```
-python metapy.py C:\example\folder -f
-```
-
-Please, note that more than three (3) arguments will be considered a wrong use of the script.
 
 # Tests and 'Source' folder
-For testing purposes, we created a 'Source' folder containing the following files:
+For testing purposes, we created a 'Source' folder containing three files to test with:
 
-| File		       | Type   | Description                   | Test result                                           |
+| File		       | Type   | Description                  | Test result                                           |
 | :--------------- | :----- | :--------------------------- | :---------------------------------------------------- |
-| full_negative    | `png`  | Corrupted file               | Error: Invalid file                                    |
+| full_negative    | `png`  | Corrupted file               | Error: Invalid file                                   |
 | positive_no_meta | `jpg`  | Plain image without metadata | Only size and mode                                    |
 | full_positive    | `jpg`  | Phone-taken camera           | Full metadata output and duplication without metadata |
 
 
 ---
+# Possible Improvements
+All possible improvements are listed below to keep track of them:
+* Dockerize
+* Logging
+* Improve Exceptions: image and other files validation
+* call for metadata collection
+* TBD
+
 
 # Extra notes
 ## Why Pillow?
@@ -55,18 +55,8 @@ Reference:
 	- https://pillow.readthedocs.io/en/stable/index.html
 	- https://github.com/python-pillow/Pillow
 
-## Logging
-For logging capabilities, we use the built-in 'Logging' facility.
-Reference and documentation:
-
-	- https://docs.python.org/3/library/logging.html
-
-## imghdr for image validator
-The imghdr builtin module is not used as it gets deprecated on 3.11. Opening the window for future versions.
-Reference:
-
-	- https://docs.python.org/3/library/imghdr.html
-	- https://peps.python.org/pep-0594/
+## Flask
+[needs completion]
 
 <!-- Contributing -->
 
