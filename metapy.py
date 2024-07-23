@@ -1,227 +1,53 @@
 """
     Title: metaPy
     Author: Carlos Mena
-    Version: 1.0
-    Description: CLI python application for image metadata collection and optional deletion
-    with two log levels (info and debug) verted into two different files.
-    Not valid for images contained on byte streams.
+    Version: 2.0
+    Description: Python service for "image metadata deletion", using Flask.
+    This service actually generates a copy with the same base data, 
+     excluding its metadata.
     
 """
-import sys
-import logging
-import os
-from os import listdir
-from os.path import exists, isfile, join
+from flask import Flask, request, jsonify
 from PIL import Image
-from PIL.ExifTags import TAGS
+from io import BytesIO
 
-"""
- Log Setup:
+app = Flask(__name__)
 
- Every debugging-level output will be verted into the metapy.log file,
- located on the same folder where the program is run.
-
- """
-
-# Creating both loggers
-logger = logging.getLogger('dev_log')
-logger.setLevel(logging.DEBUG)
-
-# Preparing log format
-# formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-
-# Setting INFO / USER log handler to lower level
-handler = logging.FileHandler('.\\metapy.log')
-stream_handler = logging.StreamHandler()
-stream_handler.setLevel(level=logging.DEBUG)
-# stream_handler.setFormatter(formatter)
-logger.addHandler(handler)
-
-
-"""
-OpenImage class for image-related functions.
-
-image_read() -> Image opening and metadata collection on tags,
-    listed as key-value
-
-image_copy_del() -> Copy of preselected image
-    without metadata on new 'no_meta' folder
-
-"""
-
-class OpenImage:
-    def __init__(self, path):
-        self.image = Image.open(path)
-        self.exifdata = (self.image.getexif())
-
-    def image_read(self):
-        # Image-reading function
-        exit = self.exifdata
-        img = self.image
-        items = exit.items()
-
-        # Checking exif data stored as Tags
-        if exit:
-            try:
-                # Use TAGS module to make EXIF data human readable
-                exif_data = {
-                    TAGS[key]: value
-                    for key, value in items
-                    if key in TAGS
-                }
-            except AttributeError:
-                # Rise error for attributes reading through dev log
-                logger.error('Error found on attributes')
-            finally:
-                # Provide raw data on debug level through dev log
-                logger.debug("Raw metada: %s", exit)
-            # Preset format of exif_data into previous tags
-            exif_data['format'] = img.format
-            exif_data['Mode'] = img.mode
-            exif_data['Size'] = img.size
-            # Provide data on info level through terminal + user + dev logs
-            print("Meta data: ", exif_data)
-            logger.info("Meta data: %s", exif_data)
-        else:
-            # If image has not exif data,
-            # we provide basics mode and size of image
-            no_exif = ('Sorry, image has no exif data... Stored data: \
-Mode - ' + img.mode + ' Size - ', img.size)
-            print(no_exif)
-            logger.info(no_exif)
-
-    def image_copy_del(self, filename, destination):
-        # Image-copy of deleted-metadata image version
-        # destination is given as arg
-        img = self.image
-
-        if self.exifdata:
-            try:
-                if (img.mode != 'RGB'):
-                    # If image is not on RGB mode, we convert it
-                    img = img.convert('RGB')
-                data = list(img.getdata())
-
-                # Setting new image data
-                image_without_exif = Image.new(img.mode, img.size)
-                image_without_exif.putdata(data)
-
-                # Setting new image name + route
-                new_file = destination + "\\" + filename
-
-                # Saving image on new location
-                image_without_exif.save(new_file)
-                print("New image without metadata created: ", new_file, "\n")
-                logger.info("New image without metadata created %s", new_file)
-                logger.info("")
-            except OSError:
-                # Leaving proof of error on logs
-                logger.error("Error on creating copy without metadata")
-                logger.info("")
-        else:
-            print("As image has no metadata, no copy is created\n")
-            logger.info("As image has no metadata, no copy is created")
-            logger.info("")
-
-
-def new_directory(path, option):
-    # Function to create new directory
-    # option is defined either as file or directory
-
-    if (option == 'file'):
-        # When the option is file
-        file_len = len(path.rsplit("\\")[-1])
-        root_directory_len = (len(path) - file_len - 1)
-        root_directory = (path[0:root_directory_len])
-        # Setting destination directory
-        directory = root_directory + '\\' + 'without_meta'
-    elif(option == 'directory'):
-        # When option is file
-        # Setting destination directory directly
-        directory = path + '\\without_meta'
-
-    if not os.path.exists(directory):
-        # If destination directoy does not exists
-        # we create it + leave proof on logs
-        os.makedirs(directory)
-        logger.info("Destination directory created: %s", directory)
-    else:
-        # If it exists, we leave proof on logs
-        logger.info("Destination directory already existed: %s", directory)
-
-    # We return such destination route for further use
-    return directory
-
-
-# MetaPy
-
-def meta_py(route, filename, destination):
-    # Printing route executing on log
-    print("Executing for ", route)
-    logger.info("Executing for %s", route)
+# Decorator with path and method
+@app.route('/remove-metadata', methods=['POST'])
+def remove_metadata():
     try:
-        # Opening new image-object
-        f1 = OpenImage(route)
-        f1.image_read()
-        # Checking ask option from arg
-        if (ask is True):
-            logger.debug("No force argument used")
-            # No force arg, we ask if user wishes
-            # to create a copy without metadata
-            if (input("\nDo you wish to create a \
-copy without metadata?\n") == 'yes'):
-                logger.debug("User decided to create a copy without metadata")
-                f1.image_copy_del(filename, destination)
-            else:
-                logger.debug("User decided NOT to \
-create a copy without metadata")
-                print("\nYou chose not to create a copy without metadata\n")
-        else:
-            logger.debug("Force argument used without being asked")
-            f1.image_copy_del(filename, destination)
-    except IOError:
-        # File is not a recognizable image
-        print(route, " is not a recognizable image... \n")
-        logger.error("%s file is not a recognizable image...", route)
-        logger.info("")
+        # Making sure file is provided
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file part'}), 400
+
+        file = request.files['file']
+
+        if file.filename == '':
+            return jsonify({'error': 'No selected file'}), 400
+
+        # Open the image
+        image = Image.open(file.stream)
+
+        # Generating 
+        data = list(image.getdata())
+        image_without_metadata = Image.new(image.mode, image.size)
+        image_without_metadata.putdata(data)
+
+        # Save image to a bytes buffer
+        buffer = BytesIO()
+        image_without_metadata.save(buffer, format=image.format)
+        buffer.seek(0)
+
+        # Return the image without metadata
+        return buffer.getvalue(), 200, {
+            'Content-Type': 'image/{}'.format(image.format.lower()),
+            'Content-Disposition': 'attachment; filename={}'.format(file.filename)
+        }
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
-# Main script applied for provided path
-def main(route):
-    # Conditional structure to check if provided arg is a file or directory
-    # and consequently exec metapy
-    if (os.path.isfile(route)):
-        # If arg is a file, it will single-execute
-        print(route, "is a file and exists")
-        logger.info("%s is a file and exists", route)
-        destination = new_directory(route, 'file')
-        filename = (route.rsplit("\\")[-1])
-        meta_py(route, filename, destination)
-    elif(os.path.exists(route)):
-        # If arg is a directory, each file is extracted
-        destination = new_directory(route, 'directory')
-        my_files = [f for f in listdir(route) if isfile(join(route, f))]
-        for file in my_files:
-            filename = file
-            file = route + "\\" + file
-            meta_py(file, filename, destination)
-    else:
-        print(route, "is not a valid route or file \n")
-        logger.error("%s is not a valid route or file", route)
-        logger.info("")
-
-
-# Executing script with argument as route
-if (len(sys.argv) == 3) and (sys.argv[2] == '-f'):
-    # If second argument is '-f', we force duplication
-    ask = False
-    logger.debug("Control passed")
-    main(sys.argv[1])
-elif (len(sys.argv) == 2):
-    # If not, we ask on each
-    ask = True
-    logger.debug("Control passed")
-    main(sys.argv[1])
-else:
-    print("Script was not correctly used. Please, read the README.md")
-    logger.debug("Script not correctly used...")
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
